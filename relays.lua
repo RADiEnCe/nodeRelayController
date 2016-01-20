@@ -22,4 +22,8 @@ function relays.toggle(name)
     end
 end
 
+function relays.MQSendStatus(client)
+
+end
+
 return relays
