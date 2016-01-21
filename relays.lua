@@ -22,8 +22,21 @@ function relays.toggle(name)
     end
 end
 
-function relays.MQSendStatus(client)
+function relays.getJsonStatus()
+    local currentRelayStatus = {}                  -- temporary holder
+    for name, idx in pairs(rel) do          -- iterate over all relays
+        currentRelayStatus[name] = gpio.read(idx)  -- gpio read status. 1 on, 0 off
+    end
+    return cjson.encode(currentRelayStatus)        -- encode in json string and return
+end
 
+function relays.setJsonStatus(jsonString)
+    local targetRelayStatus = cjson.decode(jsonString)
+    for name, status in pairs(targetRelayStatus) do
+        if(rel[name] and (status == 1 or status == 0)) then -- only set if there's a relay to set and the status is valid
+            gpio.write(rel[name], status)
+        end
+    end
 end
 
 return relays
