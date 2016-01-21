@@ -1,6 +1,6 @@
 local relays = {} -- module interface
 
-local rel = {["a"] = 6, ["b"] = 7, ["c"] = 5, ["d"] = 8}; -- define list of relays. Key: name. Value: gpio index
+local rel = {["a"] = 5, ["b"] = 6, ["c"] = 7, ["d"] = 8}; -- define list of relays. Key: name. Value: gpio index
 
 for k, v in pairs(rel) do
     gpio.mode(rel[k], gpio.OUTPUT)
