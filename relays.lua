@@ -30,11 +30,26 @@ function relays.getJsonStatus()
     return cjson.encode(currentRelayStatus)        -- encode in json string and return
 end
 
-function relays.setJsonStatus(jsonString)
-    local targetRelayStatus = cjson.decode(jsonString)
-    for name, status in pairs(targetRelayStatus) do
-        if(rel[name] and (status == 1 or status == 0)) then -- only set if there's a relay to set and the status is valid
-            gpio.write(rel[name], status)
+function relays.setState(state)
+    -- can take either a relay status table or a json string
+
+    -- convert string to table. do nothing to table
+    if(type(state) ~= "table") then
+        if(type(state) ~= "string") then print("Error setting Json state: state not string or table")
+        else
+            local decodeSuccess, decodeRet = pcall(function() return cjson.decode(state) end)
+            if(decodeSuccess) then
+                state = decodeRet
+            else
+                print("Invalid Json string: "..state)
+                return
+            end
+        end
+    end
+    
+    for name, on in pairs(state) do
+        if(rel[name] and (on == 1 or on == 0)) then -- only set if there's a relay to set and the status is valid
+            gpio.write(rel[name], on)
         end
     end
 end

@@ -8,6 +8,7 @@ wifi.sta.config(CONFIG.WIFI.SSID, CONFIG.WIFI.PASSWORD)
 relays = require("relays")
 
 
+
 -- prepare to parse comands
 commandTable = {
     ["on"] = relays.on,
@@ -55,6 +56,7 @@ end
         -- on connect, subscribe
         m:on("connect", function(client) 
             m:subscribe("cmd", 1)
+            m:subscribe(CONFIG.NODENAME.."/jset", 1)
             m:subscribe(CONFIG.NODENAME.."/cmd", 1, print("subscribed"))
         end)
         -- on offline, reconnect
@@ -69,6 +71,9 @@ end
             if(topic == CONFIG.NODENAME.."/cmd")then
                 print("is command topic. passing command")
                 handleCommand(data)
+            elseif(topic == CONFIG.NODENAME.."/jset")then
+                print("is jsonCommand topic. passing command")
+                relays.setState(data)
             end
         end)
 

@@ -1,3 +1,2 @@
 1. Improve reliability (i.e. add timer to reconnect when conn lost)
-2. Add Json commands
-3. Add Json remote status i/o
+2. Add Json status request/reflection
