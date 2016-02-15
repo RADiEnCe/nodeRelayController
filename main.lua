@@ -45,7 +45,7 @@ end
                     m:connect(CONFIG.MQTT.SERVER, 17440, 0)
                 else
                     wifiRetryCount = wifiRetryCount + 1
-                    print("nowifi. waiting " .. 1000*wifiRetryCount + 1 .. " seconds before retrying")
+                    print("nowifi. waiting " .. wifiRetryCount .. " seconds before retrying")
                     tryToConnect()
                 end
             end)
