@@ -1,3 +1,6 @@
+-- note: on = gpio.low = 0, off = 1
+-- connect appliances to NC position on relay
+-- this is to ensure usability on node failure
 local relays = {} -- module interface
 
 local rel = {["a"] = 5, ["b"] = 6, ["c"] = 7, ["d"] = 8}; -- define list of relays. Key: name. Value: gpio index
@@ -7,18 +10,18 @@ for k, v in pairs(rel) do
 end
 
 function relays.on(name)
-    gpio.write(rel[name], gpio.HIGH);
+    gpio.write(rel[name], 0);
 end
 
 function relays.off(name)
-    gpio.write(rel[name], gpio.LOW);
+    gpio.write(rel[name], 1);
 end
 
 function relays.toggle(name)
     if(gpio.read(rel[name]) == 0)then 
-        gpio.write(rel[name], gpio.HIGH);
+        gpio.write(rel[name], 1);
     else
-        gpio.write(rel[name], gpio.LOW);
+        gpio.write(rel[name], 0);
     end
 end
 
@@ -48,8 +51,12 @@ function relays.setState(state)
     end
     
     for name, on in pairs(state) do
-        if(rel[name] and (on == 1 or on == 0)) then -- only set if there's a relay to set and the status is valid
-            gpio.write(rel[name], on)
+        if(rel[name]) then -- only set if there's a relay to set and the status is valid
+            if(on == 1 or on == 0) then
+                gpio.write(rel[name], 1 - on)
+            else
+                print("invalid status")
+            end
         end
     end
 end

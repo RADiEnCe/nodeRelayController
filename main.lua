@@ -28,7 +28,7 @@ end
     -- passes command strings to global function handleCommand(commandString)
     -- commad topic: cmd and nodeID/cmd
     m = mqtt.Client(CONFIG.NODENAME, 120, CONFIG.MQTT.USERNAME, CONFIG.MQTT.PASSWORD)
-
+    mqConnected = false
     --m:connect(CONFIG.MQTT.SERVER, 17440, 0, function(conn)
 
     -- predefine reactions to various things
@@ -39,14 +39,15 @@ end
         local wifiRetryCount = 0  -- add 1000 seconds to retry timer every time 
         function tryToConnect()
             -- wait for wifi, then connect
-            tmr.alarm(0, 1000*wifiRetryCount + 10, 0, function() -- alarm id 0, every 1000ms, repeat 1
+            tmr.alarm(0, 1000*wifiRetryCount + 10, 0, function() -- alarm id 0, every 1000ms, no repeat
                 if(wifi.sta.status() == 5)then
                     wifiRetryCount = 0
-                    print("Wifi good. Trying to connect...")
-                    m:connect(CONFIG.MQTT.SERVER, 17440, 0)
+                    if (not mqConnected)then
+                        m:connect(CONFIG.MQTT.SERVER, 17440, 0)
+                    end
                 else
                     wifiRetryCount = wifiRetryCount + 1
-                    print("nowifi. waiting " .. wifiRetryCount .. " seconds before retrying")
+                    print()
                     tryToConnect()
                 end
             end)
@@ -58,10 +59,12 @@ end
             m:subscribe("cmd", 1)
             m:subscribe(CONFIG.NODENAME.."/jset", 1)
             m:subscribe(CONFIG.NODENAME.."/cmd", 1, print("subscribed"))
+            mqConnected = true
         end)
         -- on offline, reconnect
         m:on("offline", function(client)
             print ("offline..reconnecting")
+            mqConnected = false
             tryToConnect()
         end)
         -- on message, parse
@@ -79,6 +82,7 @@ end
 
 tryToConnect()
 
+tmr.alarm(1, 600000, 1, tryToConnect) -- alarm id 1. try to connect every 10min
 
 --end mqtt client
 
